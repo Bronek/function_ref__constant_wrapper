@@ -464,8 +464,8 @@ replacement for <code class="sourceCode cpp">nontype</code></h1>
 <li><a href="#polls-taken" id="toc-polls-taken"><span class="toc-section-number">2</span> Polls taken<span></span></a></li>
 <li><a href="#discussion" id="toc-discussion"><span class="toc-section-number">3</span> Discussion<span></span></a>
 <ul>
-<li><a href="#why-function_ref-takes-the-nontype-parameter" id="toc-why-function_ref-takes-the-nontype-parameter"><span class="toc-section-number">3.1</span> Why
-<code class="sourceCode cpp">function_ref</code> takes the
+<li><a href="#why-does-function_ref-take-a-nontype-parameter" id="toc-why-does-function_ref-take-a-nontype-parameter"><span class="toc-section-number">3.1</span> Why does
+<code class="sourceCode cpp">function_ref</code> take a
 <code class="sourceCode cpp">nontype</code> parameter
 ?<span></span></a></li>
 <li><a href="#would-other-function-wrappers-benefit-from-taking-a-nontype-wrapper" id="toc-would-other-function-wrappers-benefit-from-taking-a-nontype-wrapper"><span class="toc-section-number">3.2</span> Would other function wrappers
@@ -494,7 +494,7 @@ Acknowledgments<span></span></a></li>
 <code class="sourceCode cpp">nontype</code> with
 <code class="sourceCode cpp">constant_wrapper</code> as a
 <code class="sourceCode cpp">function_ref</code> parameter has
-reportedly susprised some members of LWG. Plausibly, it might have also
+reportedly surprised some members of LWG. Plausibly, it might have also
 surprised the wider C++ community. This paper is an attempt to explain
 the process and the rationale behind the (lack of) decision for such a
 change.</p>
@@ -696,9 +696,9 @@ related to implementation (that was the easy part). It was the discovery
 of inconsistency between different types of function wrappers which
 would potentially lead the users to write error-prone C++ code, had such
 change been made in the standard library.</p>
-<h2 data-number="3.1" id="why-function_ref-takes-the-nontype-parameter"><span class="header-section-number">3.1</span> Why
-<code class="sourceCode cpp">function_ref</code> takes the
-<code class="sourceCode cpp">nontype</code> parameter ?<a href="#why-function_ref-takes-the-nontype-parameter" class="self-link"></a></h2>
+<h2 data-number="3.1" id="why-does-function_ref-take-a-nontype-parameter"><span class="header-section-number">3.1</span> Why does
+<code class="sourceCode cpp">function_ref</code> take a
+<code class="sourceCode cpp">nontype</code> parameter ?<a href="#why-does-function_ref-take-a-nontype-parameter" class="self-link"></a></h2>
 <p>The details can be found in <span class="citation" data-cites="P2472"><a href="#ref-P2472" role="doc-biblioref"><strong>P2472?</strong></a></span>, but the short
 version is that it provides
 <code class="sourceCode cpp">function_ref</code> with a type-erasing
@@ -738,8 +738,8 @@ a <code class="sourceCode cpp">nontype</code> parameter is not the only
 way to the same goal (i.e. size optimization).</p>
 <h2 data-number="3.3" id="is-there-a-proposal-to-add-such-constructors-to-other-function-wrappers"><span class="header-section-number">3.3</span> Is there a proposal to add such
 constructors to other function wrappers ?<a href="#is-there-a-proposal-to-add-such-constructors-to-other-function-wrappers" class="self-link"></a></h2>
-<p>Related work has been done by Zhihao Yuan and (separately) by Tomasz
-Kamiński and Jan Schultke.</p>
+<p>Initial work has been done by Zhihao Yuan and (separately) by Tomasz
+Kamiński.</p>
 <h2 data-number="3.4" id="whats-the-problem-with-replacing-nontype-with-constant_wrapper"><span class="header-section-number">3.4</span> What’s the problem with
 replacing <code class="sourceCode cpp">nontype</code> with
 <code class="sourceCode cpp">constant_wrapper</code> ?<a href="#whats-the-problem-with-replacing-nontype-with-constant_wrapper" class="self-link"></a></h2>
@@ -750,10 +750,10 @@ arbitrary invocable used to instantiate it.</p>
 <p>More specifically, <code class="sourceCode cpp"><span class="kw">operator</span><span class="op">()</span></code>
 in <code class="sourceCode cpp">constant_wrapper</code> is defined in
 <span class="citation" data-cites="P2781"><a href="#ref-P2781" role="doc-biblioref"><strong>P2781?</strong></a></span> as:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">template</span><span class="op">&lt;</span><span class="kw">constexpr</span><span class="op">-</span>param T, <span class="kw">constexpr</span><span class="op">-</span>param<span class="op">...</span> Args<span class="op">&gt;</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>      <span class="kw">constexpr</span> <span class="kw">auto</span> <span class="kw">operator</span><span class="op">()(</span><span class="kw">this</span> T, Args<span class="op">...)</span> <span class="kw">noexcept</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <span class="kw">requires</span><span class="op">(</span>Args<span class="op">...)</span> <span class="op">{</span> constant_wrapper<span class="op">&lt;</span>T<span class="op">::</span>value<span class="op">(</span>Args<span class="op">::</span>value<span class="op">...)&gt;()</span>; <span class="op">}</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>          <span class="op">{</span> <span class="cf">return</span> constant_wrapper<span class="op">&lt;</span>T<span class="op">::</span>value<span class="op">(</span>Args<span class="op">::</span>value<span class="op">...)&gt;{}</span>; <span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">constexpr</span><span class="op">-</span>param T, <span class="kw">constexpr</span><span class="op">-</span>param<span class="op">...</span> Args<span class="op">&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <span class="kw">auto</span> <span class="kw">operator</span><span class="op">()(</span><span class="kw">this</span> T, Args<span class="op">...)</span> <span class="kw">noexcept</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">requires</span> <span class="kw">requires</span><span class="op">(</span>Args<span class="op">...)</span> <span class="op">{</span> constant_wrapper<span class="op">&lt;</span>T<span class="op">::</span>value<span class="op">(</span>Args<span class="op">::</span>value<span class="op">...)&gt;()</span>; <span class="op">}</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span> <span class="cf">return</span> constant_wrapper<span class="op">&lt;</span>T<span class="op">::</span>value<span class="op">(</span>Args<span class="op">::</span>value<span class="op">...)&gt;{}</span>; <span class="op">}</span></span></code></pre></div>
 <p>Please note that the return type is an instance of
 <code class="sourceCode cpp">constant_wrapper</code>, which will fail
 compilation if the return type returned from the invocation <code class="sourceCode cpp">T<span class="op">::</span>value<span class="op">(</span>Args<span class="op">::</span>value<span class="op">...)</span></code>
@@ -793,13 +793,13 @@ function call operator (as a niebloid might be). In short, it is not
 safe to <em>just</em> substitute
 <code class="sourceCode cpp">nontype</code> with a
 <code class="sourceCode cpp">constant_wrapper</code>.</p>
-<p>Which also means that:</p>
+<p>This also means that:</p>
 <ul>
 <li>if <code class="sourceCode cpp">nontype</code> was replaced by
 <code class="sourceCode cpp">constant_wrapper</code> as a construction
 parameter to <code class="sourceCode cpp">function_ref</code>
 <em>and</em></li>
-<li>user performed a (seemingly) simple refactoring by swapping a
+<li>the user performed a (seemingly) simple refactoring by swapping a
 standard function wrapper to another standard function wrapper (e.g. to
 benefit from the low cost of
 <code class="sourceCode cpp">function_ref</code> or to rely on data
@@ -807,10 +807,10 @@ storage in other wrappers)</li>
 </ul>
 <p>… any of the following might happen:</p>
 <ul>
-<li>program will continue to work as designed</li>
-<li>program will fail to compile</li>
-<li>program will continue to compile and “work”, but with subtly changed
-behaviour</li>
+<li>the program will continue to work as designed</li>
+<li>the program will fail to compile</li>
+<li>the program will continue to compile and “work”, but with subtly
+changed behaviour</li>
 </ul>
 <p>In order to avoid the last two from happening, we would have to do
 some of the following:</p>
@@ -847,7 +847,7 @@ as defined in <span class="citation" data-cites="P2781"><a href="#ref-P2781" rol
 <code class="sourceCode cpp">invoke</code> and
 <code class="sourceCode cpp">invoke_r</code></li>
 </ul>
-<p>This dual semantics means that we have moved the problem from one
+<p>These dual semantics mean that we have moved the problem from one
 place to another. A user would not expect that a change in their code
 from <code class="sourceCode cpp">invoke</code> (or
 <code class="sourceCode cpp">invoke_r</code>) to function call syntax,
