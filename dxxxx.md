@@ -13,7 +13,7 @@ toc-depth: 2
 # Abstract
 
 The lack of LEWG consensus during the Sofia to replace `nontype` with
-`constant_wrapper` as a `function_ref` parameter has reportedly susprised
+`constant_wrapper` as a `function_ref` parameter has reportedly surprised
 some members of LWG. Plausibly, it might have also surprised the wider C++ community.
 This paper is an attempt to explain the process and the rationale behind the (lack of)
 decision for such a change.
@@ -86,7 +86,7 @@ related to implementation (that was the easy part). It was the discovery of inco
 between different types of function wrappers which would potentially lead the users to write error-prone C++ code,
 had such change been made in the standard library.
 
-## Why `function_ref` takes the `nontype` parameter ?
+## Why does `function_ref` take a `nontype` parameter ?
 
 The details can be found in [@P2472], but the short version is that it provides
 `function_ref` with a type-erasing constructor from a member function or a free
@@ -112,7 +112,7 @@ taking a `nontype` parameter is not the only way to the same goal (i.e. size opt
 
 ## Is there a proposal to add such constructors to other function wrappers ?
 
-Related work has been done by Zhihao Yuan and (separately) by Tomasz Kamiński and Jan Schultke.
+Initial work has been done by Zhihao Yuan and (separately) by Tomasz Kamiński.
 
 ## What's the problem with replacing `nontype` with `constant_wrapper` ?
 
@@ -122,10 +122,10 @@ be compatible with an arbitrary invocable used to instantiate it.
 More specifically, `operator()` in `constant_wrapper` is defined in [@P2781] as:
 
 ```c++
-    template<constexpr-param T, constexpr-param... Args>
-      constexpr auto operator()(this T, Args...) noexcept
-        requires requires(Args...) { constant_wrapper<T::value(Args::value...)>(); }
-          { return constant_wrapper<T::value(Args::value...)>{}; }
+template<constexpr-param T, constexpr-param... Args>
+  constexpr auto operator()(this T, Args...) noexcept
+  requires requires(Args...) { constant_wrapper<T::value(Args::value...)>(); }
+    { return constant_wrapper<T::value(Args::value...)>{}; }
 ```
 
 Please note that the return type is an instance of `constant_wrapper`, which will fail compilation if the return type
@@ -150,16 +150,16 @@ This difference will be most stark if the invocable used to instantiate `nontype
 is a functor user type with overloaded function call operators, or with a templated function call operator (as a niebloid might be).
 In short, it is not safe to _just_ substitute `nontype` with a `constant_wrapper`.
 
-Which also means that:
+This also means that:
 
 * if `nontype` was replaced by `constant_wrapper` as a construction parameter to `function_ref` _and_
-* user performed a (seemingly) simple refactoring by swapping a standard function wrapper to another standard function wrapper (e.g. to benefit from the low cost of `function_ref` or to rely on data storage in other wrappers)
+* the user performed a (seemingly) simple refactoring by swapping a standard function wrapper to another standard function wrapper (e.g. to benefit from the low cost of `function_ref` or to rely on data storage in other wrappers)
 
 ... any of the following might happen:
 
-* program will continue to work as designed
-* program will fail to compile
-* program will continue to compile and "work", but with subtly changed behaviour
+* the program will continue to work as designed
+* the program will fail to compile
+* the program will continue to compile and "work", but with subtly changed behaviour
 
 In order to avoid the last two from happening, we would have to do some of the following:
 
@@ -178,7 +178,7 @@ _dual_ invocation semantics:
 * direct call defined in `operator()`, as defined in [@P2781] _and_
 * call into the value template parameter, via `value` static data member, with `invoke` and `invoke_r`
 
-This dual semantics means that we have moved the problem from one place to another. A user would not
+These dual semantics mean that we have moved the problem from one place to another. A user would not
 expect that a change in their code from `invoke` (or `invoke_r`) to function call syntax, might make the
 program fail to compile or worse, change its behaviour.
 
