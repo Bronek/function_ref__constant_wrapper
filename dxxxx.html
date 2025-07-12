@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <meta name="dcterms.date" content="2025-07-12" />
   <title>Why `constant_wrapper` is not a usable replacement for
-`std::nontype`</title>
+`nontype`</title>
   <style>
       code{white-space: pre-wrap;}
       span.smallcaps{font-variant: small-caps;}
@@ -426,8 +426,7 @@ code.sourceCode > span { display: inline; }
 <header id="title-block-header">
 <h1 class="title" style="text-align:center">Why
 <code class="sourceCode cpp">constant_wrapper</code> is not a usable
-replacement for
-<code class="sourceCode cpp">std<span class="op">::</span>nontype</code></h1>
+replacement for <code class="sourceCode cpp">nontype</code></h1>
 <table style="border:none;float:right">
   <tr>
     <td>Document #:</td>
@@ -492,24 +491,21 @@ Acknowledgments<span></span></a></li>
 </div>
 <h1 data-number="1" id="abstract"><span class="header-section-number">1</span> Abstract<a href="#abstract" class="self-link"></a></h1>
 <p>The lack of LEWG consensus during the Sofia to replace
-<code class="sourceCode cpp">std<span class="op">::</span>nontype</code>
-with <code class="sourceCode cpp">std<span class="op">::</span>constant_wrapper</code>
-as a <code class="sourceCode cpp">std<span class="op">::</span>function_ref</code>
-parameter has reportedly susprised some members of LWG. Plausibly, it
-might have also surprised the wider C++ community. This paper is an
-attempt to explain the process and the rationale behind the (lack of)
-decision for such a change.</p>
+<code class="sourceCode cpp">nontype</code> with
+<code class="sourceCode cpp">constant_wrapper</code> as a
+<code class="sourceCode cpp">function_ref</code> parameter has
+reportedly susprised some members of LWG. Plausibly, it might have also
+surprised the wider C++ community. This paper is an attempt to explain
+the process and the rationale behind the (lack of) decision for such a
+change.</p>
 <h1 data-number="2" id="polls-taken"><span class="header-section-number">2</span> Polls taken<a href="#polls-taken" class="self-link"></a></h1>
 <p>During the discussion on <a href="https://isocpp.org/files/papers/P3740R1.html">P3740R1</a> in
 Sofia, LEWG took a series of polls which ultimately led to the decision
-to keep
-<code class="sourceCode cpp">std<span class="op">::</span>nontype</code>
-parameters in <code class="sourceCode cpp">std<span class="op">::</span>function_ref</code>
-constructors and rename it, rather than replace
-<code class="sourceCode cpp">std<span class="op">::</span>nontype</code>
-with <code class="sourceCode cpp">std<span class="op">::</span>constant_wrapper</code>,
-while opening a path for a possible NB comment which might request such
-a change.</p>
+to keep <code class="sourceCode cpp">nontype</code> parameters in
+<code class="sourceCode cpp">function_ref</code> constructors and rename
+it, rather than replace <code class="sourceCode cpp">nontype</code> with
+<code class="sourceCode cpp">constant_wrapper</code>, while opening a
+path for a possible NB comment which might request such a change.</p>
 <p>First, the following three polls were taken as popularity
 contest:</p>
 <blockquote>

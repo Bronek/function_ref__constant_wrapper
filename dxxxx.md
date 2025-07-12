@@ -1,5 +1,5 @@
 ---
-title: "Why `constant_wrapper` is not a usable replacement for `std::nontype`"
+title: "Why `constant_wrapper` is not a usable replacement for `nontype`"
 document: pxxxx
 date: today
 audience: LEWG, LWG
@@ -12,8 +12,8 @@ toc-depth: 2
 
 # Abstract
 
-The lack of LEWG consensus during the Sofia to replace `std::nontype` with
-`std::constant_wrapper` as a `std::function_ref` parameter has reportedly susprised
+The lack of LEWG consensus during the Sofia to replace `nontype` with
+`constant_wrapper` as a `function_ref` parameter has reportedly susprised
 some members of LWG. Plausibly, it might have also surprised the wider C++ community.
 This paper is an attempt to explain the process and the rationale behind the (lack of)
 decision for such a change.
@@ -21,9 +21,9 @@ decision for such a change.
 # Polls taken
 
 During the discussion on [P3740R1](https://isocpp.org/files/papers/P3740R1.html) in Sofia,
-LEWG took a series of polls which ultimately led to the decision to keep `std::nontype`
-parameters in `std::function_ref` constructors and rename it, rather than replace `std::nontype`
-with `std::constant_wrapper`, while opening a path for a possible NB comment which might
+LEWG took a series of polls which ultimately led to the decision to keep `nontype`
+parameters in `function_ref` constructors and rename it, rather than replace `nontype`
+with `constant_wrapper`, while opening a path for a possible NB comment which might
 request such a change.
 
 First, the following three polls were taken as popularity contest:
