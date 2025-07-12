@@ -112,7 +112,7 @@ taking a `nontype` parameter is not the only way to the same goal (i.e. size opt
 
 ## Is there a proposal to add such constructors to other function wrappers ?
 
-Initial work has been done by Zhihao Yuan and (separately) by Tomasz Kamiński.
+Related work has been done by Zhihao Yuan and (separately) by Tomasz Kamiński and Jan Schultke.
 
 ## What's the problem with replacing `nontype` with `constant_wrapper` ?
 
