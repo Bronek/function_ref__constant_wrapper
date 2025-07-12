@@ -481,8 +481,8 @@ constructors to other function wrappers ?<span></span></a></li>
 ?<span></span></a></li>
 <li><a href="#it-worked-so-whats-the-problem" id="toc-it-worked-so-whats-the-problem"><span class="toc-section-number">3.5</span> It worked, so what’s the problem
 ?<span></span></a></li>
-<li><a href="#wait-what-about-change-in-invoke-invoke_r" id="toc-wait-what-about-change-in-invoke-invoke_r"><span class="toc-section-number">3.6</span> Wait, what about change in
-<code class="sourceCode cpp">invoke</code>
+<li><a href="#what-about-change-in-invoke-and-invoke_r" id="toc-what-about-change-in-invoke-and-invoke_r"><span class="toc-section-number">3.6</span> What about change in
+<code class="sourceCode cpp">invoke</code> and
 <code class="sourceCode cpp">invoke_r</code> ?<span></span></a></li>
 </ul></li>
 <li><a href="#summary" id="toc-summary"><span class="toc-section-number">4</span> Summary<span></span></a></li>
@@ -683,10 +683,10 @@ be discussed again if an NB comment is submitted for C++26.</p>
 <h1 data-number="3" id="discussion"><span class="header-section-number">3</span> Discussion<a href="#discussion" class="self-link"></a></h1>
 <p>During the discussion leading to polls taken above, I have argued
 strongly against replacing <code class="sourceCode cpp">nontype</code>
-as a parameter of <code class="sourceCode cpp">function_ref</code> with
-<code class="sourceCode cpp">constant_wrapper</code>, instead arguing
-for renaming <code class="sourceCode cpp">nontype</code> to something
-that better reflects its use as a
+with <code class="sourceCode cpp">constant_wrapper</code> as a parameter
+for <code class="sourceCode cpp">function_ref</code> construtors,
+instead arguing for renaming <code class="sourceCode cpp">nontype</code>
+to something that better reflects its use as a
 <code class="sourceCode cpp">function_ref</code> parameter.</p>
 <p>This was informed by my <a href="https://github.com/zhihaoy/nontype_functional/pull/13">implementation
 experience</a> replacing <code class="sourceCode cpp">nontype</code>
@@ -725,19 +725,20 @@ reference to call it with.</p>
 <h2 data-number="3.2" id="would-other-function-wrappers-benefit-from-taking-a-nontype-wrapper"><span class="header-section-number">3.2</span> Would other function wrappers
 benefit from taking a <code class="sourceCode cpp">nontype</code>
 wrapper ?<a href="#would-other-function-wrappers-benefit-from-taking-a-nontype-wrapper" class="self-link"></a></h2>
-<p>Yes. In particular
+<p>Potentially. In particular
 <code class="sourceCode cpp">move_only_function</code> and
 <code class="sourceCode cpp">copyable_function</code>, which both apply
-small size optimization, would be able to use space more efficiently, if
+small size optimization, might be able to use space more efficiently, if
 they performed type-erasure from a
-<code class="sourceCode cpp">nontype</code> wrapper, when instantiating
-the wrapper to call target.</p>
-<p>A similar optimization opportunity would arise if the function
-wrapper construtors recognized that an invocable passed to its
-constructor is stateless (e.g. by application of
-<code class="sourceCode cpp">is_empty</code> trait), meaning that taking
-a <code class="sourceCode cpp">nontype</code> parameter is not the only
-way to the same goal (i.e. size optimization).</p>
+<code class="sourceCode cpp">nontype</code> wrapper (similarly like
+<code class="sourceCode cpp">function_ref</code> does) when
+instantiating the wrapper to call target.</p>
+<p>However, a similar optimization opportunity can be also created
+without the use of <code class="sourceCode cpp">nontype</code>. A
+function wrapper construtor might recognize that an invocable passed to
+its constructor is stateless (e.g. by application of
+<code class="sourceCode cpp">is_empty</code> trait) and then simply do
+not waste space trying to store such non-state.</p>
 <h2 data-number="3.3" id="is-there-a-proposal-to-add-such-constructors-to-other-function-wrappers"><span class="header-section-number">3.3</span> Is there a proposal to add such
 constructors to other function wrappers ?<a href="#is-there-a-proposal-to-add-such-constructors-to-other-function-wrappers" class="self-link"></a></h2>
 <p>Initial work has been done by Zhihao Yuan and (separately) by Tomasz
@@ -786,7 +787,7 @@ to construct any function wrapper (with matching template parameters).
 The behaviour and semantics of such function wrapper will be different
 compared to a <code class="sourceCode cpp">function_ref</code>
 constructed with <code class="sourceCode cpp">nontype</code>, because of
-the semantics <code class="sourceCode cpp">constant_wrapper<span class="op">::</span><span class="kw">operator</span><span class="op">()</span></code>.
+the semantics of <code class="sourceCode cpp">constant_wrapper<span class="op">::</span><span class="kw">operator</span><span class="op">()</span></code>.
 This difference will be most stark if the invocable used to instantiate
 <code class="sourceCode cpp">nontype</code> or
 <code class="sourceCode cpp">constant_wrapper</code> is a functor user
@@ -795,17 +796,18 @@ function call operator (as a niebloid might be). In short, it is not
 safe to <em>just</em> substitute
 <code class="sourceCode cpp">nontype</code> with a
 <code class="sourceCode cpp">constant_wrapper</code>.</p>
-<p>This also means that:</p>
+<p>This means that:</p>
 <ul>
 <li>if <code class="sourceCode cpp">nontype</code> was replaced by
 <code class="sourceCode cpp">constant_wrapper</code> as a construction
 parameter to <code class="sourceCode cpp">function_ref</code>
 <em>and</em></li>
-<li>the user performed a (seemingly) simple refactoring by swapping a
-standard function wrapper to another standard function wrapper (e.g. to
-benefit from the low cost of
-<code class="sourceCode cpp">function_ref</code> or to rely on data
-storage in other wrappers)</li>
+<li>a user performed a (seemingly) simple refactoring by swapping a
+standard function wrapper with another standard function wrapper
+(e.g. to benefit from the low cost of
+<code class="sourceCode cpp">function_ref</code> or to use the data
+storage in other wrappers) where the constructor happens to rely on
+<code class="sourceCode cpp">constant_wrapper</code></li>
 </ul>
 <p>… any of the following might happen:</p>
 <ul>
@@ -814,8 +816,8 @@ storage in other wrappers)</li>
 <li>the program will continue to compile and “work”, but with subtly
 changed behaviour</li>
 </ul>
-<p>In order to avoid the last two from happening, we would have to do
-some of the following:</p>
+<p>In order to prevent the last two happening, we would have to do some
+of the following:</p>
 <ul>
 <li>revisit <code class="sourceCode cpp"><span class="kw">operator</span><span class="op">()</span></code>
 in <code class="sourceCode cpp">constant_wrapper</code> i.e. <span class="citation" data-cites="P2781"><a href="#ref-P2781" role="doc-biblioref"><strong>P2781?</strong></a></span></li>
@@ -830,9 +832,9 @@ extracted <code class="sourceCode cpp">value</code> rather than call
 <code class="sourceCode cpp"><span class="kw">operator</span><span class="op">()</span></code>
 directly</li>
 </ul>
-<h2 data-number="3.6" id="wait-what-about-change-in-invoke-invoke_r"><span class="header-section-number">3.6</span> Wait, what about change in
-<code class="sourceCode cpp">invoke</code>
-<code class="sourceCode cpp">invoke_r</code> ?<a href="#wait-what-about-change-in-invoke-invoke_r" class="self-link"></a></h2>
+<h2 data-number="3.6" id="what-about-change-in-invoke-and-invoke_r"><span class="header-section-number">3.6</span> What about change in
+<code class="sourceCode cpp">invoke</code> and
+<code class="sourceCode cpp">invoke_r</code> ?<a href="#what-about-change-in-invoke-and-invoke_r" class="self-link"></a></h2>
 <p>The last option suggested above, which nobody is proposing and which
 (in my opinion) is <em>not</em> sensible, would “fix” the problem,
 preventing breakage when the user code is switched from one standard
@@ -842,7 +844,7 @@ cost of imbuing the <code class="sourceCode cpp">constant_wrapper</code>
 with <em>dual</em> invocation semantics:</p>
 <ul>
 <li>direct call defined in <code class="sourceCode cpp"><span class="kw">operator</span><span class="op">()</span></code>,
-as defined in <span class="citation" data-cites="P2781"><a href="#ref-P2781" role="doc-biblioref"><strong>P2781?</strong></a></span>
+as stated in <span class="citation" data-cites="P2781"><a href="#ref-P2781" role="doc-biblioref"><strong>P2781?</strong></a></span>
 <em>and</em></li>
 <li>call into the value template parameter, via
 <code class="sourceCode cpp">value</code> static data member, with
@@ -857,7 +859,7 @@ might make the program fail to compile or worse, change its
 behaviour.</p>
 <p>This is just making things worse.</p>
 <h1 data-number="4" id="summary"><span class="header-section-number">4</span> Summary<a href="#summary" class="self-link"></a></h1>
-<p>LEWG did the right thing in Sofia by no approving replacing
+<p>LEWG did the right thing in Sofia by not replacing
 <code class="sourceCode cpp">nontype</code> constructor parameters in
 <code class="sourceCode cpp">function_ref</code> with
 <code class="sourceCode cpp">constant_wrapper</code>. Had this been
@@ -873,9 +875,9 @@ constructor (this is the <em>only</em> use of
 <code class="sourceCode cpp">nontype</code> type in C++26). This
 <em>has</em> to be done in C++26, possibly via NB comment</li>
 <li>Extend such newly named type with function call semantics that does
-not break user expectations</li>
-<li>Provide other function wrappers with the optimization for such a
-stateless constructor parameter</li>
+not break user expectations, while preserving its lack of state</li>
+<li>Consider optimizing other function wrappers for such a stateless
+constructor parameter</li>
 </ul>
 <h1 data-number="6" id="acknowledgments"><span class="header-section-number">6</span> Acknowledgments<a href="#acknowledgments" class="self-link"></a></h1>
 <p>Thanks to Jan Schultke, Tomasz Kamiński, Zhihao Yuan, Zach Laine and
