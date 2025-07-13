@@ -939,7 +939,11 @@ behaviour.</p>
 <code class="sourceCode cpp">constant_wrapper</code>. Had this been
 done, we would have to either revisit several other design decision
 taken previously or risk users’ code breaking (sometimes subtly) when
-they move between different standard function wrappers.</p>
+they move between different standard function wrappers. Even if we
+changed the other function wrappers to do what
+<code class="sourceCode cpp">function_ref</code> does (a design choice
+rejected by LEWG) then the inconsistency would remain, it would just
+move elsewhere.</p>
 <h1 data-number="5" id="future"><span class="header-section-number">5</span> Future<a href="#future" class="self-link"></a></h1>
 <p>I suggest we should pursue the following:</p>
 <ul>
