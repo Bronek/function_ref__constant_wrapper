@@ -431,7 +431,7 @@ replacement for <code class="sourceCode cpp">nontype</code></h1>
   <tr>
     <td>Document #:</td>
     <td>
-      D3792R0
+      P3792R0
       [<a href="https://wg21.link/P3792">Latest</a>]
       [<a href="https://wg21.link/P3792/status">Status</a>]
     </td>
@@ -495,14 +495,14 @@ Acknowledgments<span></span></a></li>
 </ul>
 </div>
 <h1 data-number="1" id="abstract"><span class="header-section-number">1</span> Abstract<a href="#abstract" class="self-link"></a></h1>
-<p>The lack of LEWG consensus during the Sofia to replace
+<p>The lack of LEWG consensus during the Sofia meeting to replace
 <code class="sourceCode cpp">nontype</code> with
 <code class="sourceCode cpp">constant_wrapper</code> as a
-<code class="sourceCode cpp">function_ref</code> parameter has
-reportedly surprised some members of LWG. Plausibly, it might have also
-surprised the wider C++ community. This paper is an attempt to explain
-the process and the rationale behind the (lack of) decision for such a
-change.</p>
+<code class="sourceCode cpp">function_ref</code> construction parameter
+has reportedly surprised some members of LWG. Plausibly, it might have
+also surprised the wider C++ community. This paper is an attempt to
+explain the process and the rationale behind the (lack of) decision for
+such a change.</p>
 <h1 data-number="2" id="polls-taken"><span class="header-section-number">2</span> Polls taken<a href="#polls-taken" class="self-link"></a></h1>
 <p>During the discussion on <span class="citation" data-cites="P3740R1"><a href="https://isocpp.org/files/papers/P3740R1.html" role="doc-biblioref">[P3740R1]</a></span> in Sofia, LEWG took a series
 of polls which ultimately led to the decision to keep
@@ -684,23 +684,26 @@ replace with <code class="sourceCode cpp">constant_wrapper</code> in
 be discussed again if an NB comment is submitted for C++26.</p>
 </blockquote>
 <h1 data-number="3" id="discussion"><span class="header-section-number">3</span> Discussion<a href="#discussion" class="self-link"></a></h1>
-<p>During the discussion leading to polls taken above, I have argued
-strongly against replacing <code class="sourceCode cpp">nontype</code>
-with <code class="sourceCode cpp">constant_wrapper</code> as a parameter
-for <code class="sourceCode cpp">function_ref</code> construtors,
-instead arguing for renaming <code class="sourceCode cpp">nontype</code>
-to something that better reflects its use as a
-<code class="sourceCode cpp">function_ref</code> parameter.</p>
-<p>This was informed by my <span class="citation" data-cites="implementation"><a href="https://github.com/zhihaoy/nontype_functional/pull/13" role="doc-biblioref">[implementation]</a></span> experience replacing
-<code class="sourceCode cpp">nontype</code> with
+<p>During the discussion leading to the polls, I have argued strongly
+against replacing <code class="sourceCode cpp">nontype</code> with
+<code class="sourceCode cpp">constant_wrapper</code> as a parameter for
+<code class="sourceCode cpp">function_ref</code> construtors, instead
+arguing for renaming <code class="sourceCode cpp">nontype</code> to
+something that better reflects its use as a
+<code class="sourceCode cpp">function_ref</code> construction parameter
+(which is the only use of <code class="sourceCode cpp">nontype</code> in
+the standard).</p>
+<p>This was informed by my implementation experience <span class="citation" data-cites="implementation"><a href="https://github.com/zhihaoy/nontype_functional/pull/13" role="doc-biblioref">[zhihaoy/nontype_functional/pull/13]</a></span>
+replacing <code class="sourceCode cpp">nontype</code> with
 <code class="sourceCode cpp">constant_wrapper</code> in reference
 implementations of <code class="sourceCode cpp">function_ref</code>,
 <code class="sourceCode cpp">move_only_function</code> and
 <code class="sourceCode cpp">function</code>. The problem was not
-related to implementation (that was the easy part). It was the discovery
-of inconsistency between different types of function wrappers which
-would potentially lead the users to write error-prone C++ code, had such
-change been made in the standard library.</p>
+related to the implementation (that was the easy part). It was the
+result of a discovery of inconsistency between different types of
+function wrappers, which would potentially lead the users to write
+error-prone C++ code, had such change been made in the standard
+library.</p>
 <h2 data-number="3.1" id="why-does-function_ref-take-a-nontype-parameter"><span class="header-section-number">3.1</span> Why does
 <code class="sourceCode cpp">function_ref</code> take a
 <code class="sourceCode cpp">nontype</code> parameter ?<a href="#why-does-function_ref-take-a-nontype-parameter" class="self-link"></a></h2>
@@ -739,8 +742,9 @@ instantiating the wrapper to call target.</p>
 without the use of <code class="sourceCode cpp">nontype</code>. A
 function wrapper might recognize that an invocable passed to its
 constructor is stateless (e.g. by application of
-<code class="sourceCode cpp">is_empty</code> trait) and then simply do
-not waste space trying to store such non-state.</p>
+<code class="sourceCode cpp">is_empty</code> and
+<code class="sourceCode cpp">is_trivially_relocatable</code> traits) and
+then simply do not waste space trying to store such non-state.</p>
 <h2 data-number="3.3" id="is-there-a-proposal-to-add-such-constructors-to-other-function-wrappers"><span class="header-section-number">3.3</span> Is there a proposal to add such
 constructors to other function wrappers ?<a href="#is-there-a-proposal-to-add-such-constructors-to-other-function-wrappers" class="self-link"></a></h2>
 <p>Initial work has been done by Zhihao Yuan and (separately) by Tomasz
@@ -788,10 +792,9 @@ a value of a compatible type, is also an invocable, and it can be used
 to construct any function wrapper (with matching template parameters).
 The behaviour and semantics of such function wrapper will be different
 compared to a <code class="sourceCode cpp">function_ref</code>
-constructed with <code class="sourceCode cpp">nontype</code>, because of
-the semantics of <code class="sourceCode cpp">constant_wrapper<span class="op">::</span><span class="kw">operator</span><span class="op">()</span></code>.
+constructed with <code class="sourceCode cpp">constant_wrapper</code>,
+because of the semantics of <code class="sourceCode cpp">constant_wrapper<span class="op">::</span><span class="kw">operator</span><span class="op">()</span></code>.
 This difference will be most stark if the invocable used to instantiate
-<code class="sourceCode cpp">nontype</code> or
 <code class="sourceCode cpp">constant_wrapper</code> is a functor user
 type with overloaded function call operators, or with a templated
 function call operator (as a niebloid might be). In short, it is not
@@ -824,7 +827,7 @@ of the following:</p>
 <li>revisit <code class="sourceCode cpp"><span class="kw">operator</span><span class="op">()</span></code>
 in <code class="sourceCode cpp">constant_wrapper</code> i.e. <span class="citation" data-cites="P2781R8"><a href="https://wg21.link/p2781r8" role="doc-biblioref">[P2781R8]</a></span></li>
 <li>revisit <code class="sourceCode cpp">nontype</code> parameter in
-<code class="sourceCode cpp">function_ref</code> i.e. <span class="citation" data-cites="P2472R3"><a href="https://wg21.link/p2472r3" role="doc-biblioref">[P2472R3]</a></span> and [<span class="citation" data-cites="P0792R14"><a href="https://wg21.link/p0792r14" role="doc-biblioref">[P0792R14]</a></span>]</li>
+<code class="sourceCode cpp">function_ref</code> i.e. <span class="citation" data-cites="P2472R3"><a href="https://wg21.link/p2472r3" role="doc-biblioref">[P2472R3]</a></span> and <span class="citation" data-cites="P0792R14"><a href="https://wg21.link/p0792r14" role="doc-biblioref">[P0792R14]</a></span></li>
 <li>add similar overloads to other functional wrappers (see first poll
 taken)</li>
 <li>define specialization of <code class="sourceCode cpp">invoke</code>
@@ -864,16 +867,16 @@ clause.</p>
 <code class="sourceCode cpp">baz_t</code> type presented below:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">static</span> <span class="kw">constexpr</span> <span class="kw">struct</span> baz_t <span class="kw">final</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">static</span> <span class="kw">constexpr</span> <span class="dt">int</span> value <span class="op">=</span> <span class="dv">2</span>;</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">static</span> <span class="kw">constexpr</span> <span class="dt">int</span> value <span class="op">=</span> <span class="dv">42</span>;</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> baz <span class="op">=</span> <span class="op">{}</span>;</span></code></pre></div>
 <p>The <code class="sourceCode cpp">foo</code> object is used to
-instantiate a <code class="sourceCode cpp">constant_wrapper</code>, from
-which a <code class="sourceCode cpp">move_only_function<span class="op">&lt;</span><span class="dt">int</span><span class="op">(</span>baz_t<span class="op">)&gt;</span> fn</code>
+instantiate a <code class="sourceCode cpp">cw<span class="op">&lt;</span>foo<span class="op">&gt;</span></code>,
+from which a <code class="sourceCode cpp">move_only_function<span class="op">&lt;</span><span class="dt">int</span><span class="op">(</span>baz_t<span class="op">)&gt;</span> fn</code>
 is constructed:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> main<span class="op">()</span> <span class="op">-&gt;</span> <span class="dt">int</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    move_only_function<span class="op">&lt;</span><span class="dt">int</span><span class="op">(</span>baz_t<span class="op">)&gt;</span> fn<span class="op">(</span>cw<span class="op">&lt;</span>foo<span class="op">&gt;)</span>;</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="ot">assert</span><span class="op">(</span>fn<span class="op">(</span>baz<span class="op">)</span> <span class="op">==</span> <span class="dv">2</span><span class="op">)</span>;</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="ot">assert</span><span class="op">(</span>fn<span class="op">(</span>baz<span class="op">)</span> <span class="op">==</span> <span class="dv">42</span><span class="op">)</span>;</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>The
 <code class="sourceCode cpp"><span class="ot">assert</span></code> will
@@ -881,25 +884,27 @@ succeed if the top overloaded <code class="sourceCode cpp"><span class="kw">oper
 in <code class="sourceCode cpp">foo_t</code> is selected. This is
 guaranteed by <code class="sourceCode cpp">constant_wrapper<span class="op">::</span><span class="kw">operator</span><span class="op">()</span></code>,
 which unwraps <code class="sourceCode cpp">value</code> from
-<code class="sourceCode cpp">baz_t</code>.</p>
+<code class="sourceCode cpp">baz_t</code>, <em>before</em> submitting
+the result to <code class="sourceCode cpp">foo<span class="op">(</span><span class="dt">int</span><span class="op">)</span></code>.</p>
 <p>If the user were to switch their code from
 <code class="sourceCode cpp">move_only_function</code> to
 <code class="sourceCode cpp">function_ref</code>, altered from taking
 <code class="sourceCode cpp">nontype</code> to instead take
 <code class="sourceCode cpp">constant_wrapper</code> as a constructor
 parameter, then the constructor will unwrap
-<code class="sourceCode cpp">value</code> from
-<code class="sourceCode cpp">constant_wrapper</code> rather than rely on
-call to <code class="sourceCode cpp">constant_wrapper<span class="op">::</span><span class="kw">operator</span><span class="op">()</span></code>.
+<code class="sourceCode cpp">value</code> (that is,
+<code class="sourceCode cpp">foo</code> object) from <code class="sourceCode cpp">cw<span class="op">&lt;</span>foo<span class="op">&gt;</span></code>
+and invoke <code class="sourceCode cpp">foo<span class="op">(</span>baz_t<span class="op">)</span></code>
+(rather than call <code class="sourceCode cpp">constant_wrapper<span class="op">::</span><span class="kw">operator</span><span class="op">()</span></code>).
 As a result, the second overload of <code class="sourceCode cpp"><span class="kw">operator</span><span class="op">()</span></code>
 in <code class="sourceCode cpp">foo_t</code> will be selected, and the
 assert will fail:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> main<span class="op">()</span> <span class="op">-&gt;</span> <span class="dt">int</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    function_ref<span class="op">&lt;</span><span class="dt">int</span><span class="op">(</span>baz_t<span class="op">)&gt;</span> fn<span class="op">(</span>cw<span class="op">&lt;</span>foo<span class="op">&gt;)</span>;</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="ot">assert</span><span class="op">(</span>fn<span class="op">(</span>baz<span class="op">)</span> <span class="op">==</span> <span class="dv">2</span><span class="op">)</span>; <span class="co">// assertion failure</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="ot">assert</span><span class="op">(</span>fn<span class="op">(</span>baz<span class="op">)</span> <span class="op">==</span> <span class="dv">42</span><span class="op">)</span>; <span class="co">// assertion failure</span></span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p>This demonstration also is <span class="citation" data-cites="available"><a href="https://github.com/Bronek/nontype_functional/pull/1" role="doc-biblioref">[available]</a></span> at github.</p>
+<p>This demonstration is available on github <span class="citation" data-cites="github"><a href="https://github.com/Bronek/nontype_functional/pull/1" role="doc-biblioref">[Bronek/nontype_functional/pull/1]</a></span>.</p>
 <h2 data-number="3.7" id="what-about-change-in-invoke-and-invoke_r"><span class="header-section-number">3.7</span> What about change in
 <code class="sourceCode cpp">invoke</code> and
 <code class="sourceCode cpp">invoke_r</code> ?<a href="#what-about-change-in-invoke-and-invoke_r" class="self-link"></a></h2>
@@ -938,27 +943,25 @@ they move between different standard function wrappers.</p>
 <ul>
 <li>Rename <code class="sourceCode cpp">nontype</code> to better reflect
 its current use in <code class="sourceCode cpp">function_ref</code>
-constructor (this is the <em>only</em> use of
-<code class="sourceCode cpp">nontype</code> type in C++26). This
-<em>has</em> to be done in C++26, possibly via NB comment</li>
+constructor. This <em>has</em> to be done in C++26 (possibly via NB
+comment) and is discussed in <span class="citation" data-cites="P3774R0"><a href="https://isocpp.org/files/papers/P3774R0.html" role="doc-biblioref">[P3774R0]</a></span>.</li>
 <li>Extend such newly named type with function call semantics that does
-not break user expectations, while preserving its lack of state</li>
+not break user expectations, while preserving its lack of state. This is
+also discussed in <span class="citation" data-cites="P3774R0"><a href="https://isocpp.org/files/papers/P3774R0.html" role="doc-biblioref">[P3774R0]</a></span>.</li>
 <li>Consider optimizing other function wrappers for such a stateless
-constructor parameter, possibly as a QoI.</li>
+constructor parameter, possibly as QoI.</li>
 </ul>
 <h1 data-number="6" id="acknowledgments"><span class="header-section-number">6</span> Acknowledgments<a href="#acknowledgments" class="self-link"></a></h1>
-<p>Thanks to Jan Schultke, Tomasz Kamiński and Gašper Ažman for their
-kind comments and review of this paper. Thanks to Zhihao Yuan and Zach
-Laine for their reference implementations of function wrappers and
-<code class="sourceCode cpp">constant_wrapper</code>.</p>
+<p>I am grateful to Jan Schultke, Tomasz Kamiński and Gašper Ažman for
+their kind comments and suggestions. Also big thank you to Zhihao Yuan
+and Zach Laine for their reference implementations of function wrappers
+and <code class="sourceCode cpp">constant_wrapper</code>, used when
+writing this paper.</p>
 <h1 data-number="7" id="bibliography"><span class="header-section-number">7</span> References<a href="#bibliography" class="self-link"></a></h1>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="1" role="doc-bibliography">
-<div id="ref-available" class="csl-entry" role="doc-biblioentry">
-[available] Bronek Kozicki. Breakage demonstration. <a href="https://github.com/Bronek/nontype_functional/pull/1"><div class="csl-block">https://github.com/Bronek/nontype_functional/pull/1</div></a>
-</div>
-<div id="ref-implementation" class="csl-entry" role="doc-biblioentry">
-[implementation] Bronek Kozicki. Replace nontype with constant_wrapper
-as a construction parameter. <a href="https://github.com/zhihaoy/nontype_functional/pull/13"><div class="csl-block">https://github.com/zhihaoy/nontype_functional/pull/13</div></a>
+<div id="ref-github" class="csl-entry" role="doc-biblioentry">
+[Bronek/nontype_functional/pull/1] Bronek Kozicki. Breakage
+demonstration. <a href="https://github.com/Bronek/nontype_functional/pull/1"><div class="csl-block">https://github.com/Bronek/nontype_functional/pull/1</div></a>
 </div>
 <div id="ref-P0792R14" class="csl-entry" role="doc-biblioentry">
 [P0792R14] Vittorio Romeo, Zhihao Yuan, Jarrad Waterloo. 2023-02-09.
@@ -974,6 +977,14 @@ std::constexpr_wrapper. <a href="https://wg21.link/p2781r8"><div class="csl-bloc
 </div>
 <div id="ref-P3740R1" class="csl-entry" role="doc-biblioentry">
 [P3740R1] Jan Schultke. Last chance to fix std::nontype. <a href="https://isocpp.org/files/papers/P3740R1.html"><div class="csl-block">https://isocpp.org/files/papers/P3740R1.html</div></a>
+</div>
+<div id="ref-P3774R0" class="csl-entry" role="doc-biblioentry">
+[P3774R0] Jan Schultke. Rename std::nontype, and make it broadly useful.
+<a href="https://isocpp.org/files/papers/P3774R0.html"><div class="csl-block">https://isocpp.org/files/papers/P3774R0.html</div></a>
+</div>
+<div id="ref-implementation" class="csl-entry" role="doc-biblioentry">
+[zhihaoy/nontype_functional/pull/13] Bronek Kozicki. Replace nontype
+with constant_wrapper as a construction parameter. <a href="https://github.com/zhihaoy/nontype_functional/pull/13"><div class="csl-block">https://github.com/zhihaoy/nontype_functional/pull/13</div></a>
 </div>
 </div>
 </div>
